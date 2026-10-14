@@ -1,34 +1,51 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title class="ion-text-center ion-title-bold"> Mis tareas</ion-title>
+    <ion-title class="ion-text-center ion-title-bold">Mis Tareas</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- IonItem: Almacenar diferentes elementos:
-   Imagenes, Inputs, Botones o Formularios -->
-   <ion-item> 
-<!--IonInput: Por defecto es de tipo text.
-Recomendacion: Siempre indicar el name-->
+  <!-- Input para agregar una nueva tarea -->
+  <ion-item>
     <ion-input
-    type="text"
-    placeholder="Nueva tarea"
-    name="task"
-    /*Tow-Way Binding (enlace bidirecional)*/
-    [(ngModel)] = "task"
-    > </ion-input>
-    <ion-button  (click) = "addTask()" [disabled]="!task">
-    <ion-icon name="add-outline"> </ion-icon>
+      type="text"
+      placeholder="Nueva Tarea"
+      name="task"
+      [(ngModel)]="task"
+      (keyup.enter)="addTask()"
+    />
+    <ion-button (click)="addTask()" [disabled]="!task.trim()">
+      <ion-icon name="add-outline" slot="icon-only"></ion-icon>
     </ion-button>
+  </ion-item>
 
-   </ion-item>
-   @for (task of tasks; track task){
-    <ion-item>
-      <ion-label></ion-label>
+  <!-- Mensaje si la lista está vacía -->
+  @if (tasks.length === 0) {
+    <ion-item class="ion-text-center" lines="none">
+      <ion-label>No hay tareas pendientes</ion-label>
     </ion-item>
+  } @else {
+    <!-- Lista con funcionalidad de reordenamiento -->
+    <ion-list>
+      <ion-reorder-group [disabled]="false" (ionReorderEnd)="handleReorderEnd($any($event))">
+        @for (taskItem of tasks; track taskItem) {
+          <ion-item-sliding #slidingItem>
+            <ion-item>
+              <!-- Nombre de la tarea -->
+              <ion-label>{{ taskItem }}</ion-label>
+              <!-- Ícono de arrastrar -->
+              <ion-reorder slot="end"></ion-reorder>
+            </ion-item>
 
-   }
-
-
-   
-   </ion-content>
+            <!-- Opciones al deslizar -->
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="confirmDeleteTask(taskItem, slidingItem)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-reorder-group>
+    </ion-list>
+  }
+</ion-content>
